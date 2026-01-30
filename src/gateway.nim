@@ -1,7 +1,11 @@
 ## Interact with the discord api gateway.
 ## Especially `startSession`, `updateStatus`.
 
-import httpclient, ws, asyncnet, asyncdispatch
+when defined(windowsNativeTls) and defined(windows):
+    import asyncnet, asyncdispatch
+    import ./winws
+else:
+    import httpclient, ws, asyncnet, asyncdispatch
 import strformat, options, strutils, ./restapi/user
 import tables, random, times, constants, objects, json
 import nativesockets, helpers, dispatch {.all.}, sequtils
@@ -498,11 +502,6 @@ proc reconnect(s: Shard) {.async.} =
         await s.reconnect()
         return
 
-    if s.session_id == "" and s.sequence == 0:
-        await s.identify()
-    else:
-        await s.resume()
-
 proc disconnect*(s: Shard, should_reconnect = true) {.async.} =
     ## Disconnects a shard.
     if s.sockClosed: return
@@ -554,8 +553,6 @@ proc setupHeartbeatInterval(s: Shard) {.async.} =
         await sleepAsync s.interval
 
 proc handleSocketMessage(s: Shard) {.async.} =
-    await s.identify()
-
     var
         packet: (Opcode, string)
         autoreconnect = s.client.autoreconnect
@@ -609,6 +606,11 @@ proc handleSocketMessage(s: Shard) {.async.} =
         of opHello:
             s.logShard("Received 'HELLO' from the gateway.")
             s.interval = data["d"]["heartbeat_interval"].getInt()
+
+            if s.session_id == "" and s.sequence == 0:
+                await s.identify()
+            else:
+                await s.resume()
 
             if not s.heartbeating:
                 s.heartbeating = true

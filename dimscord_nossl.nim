@@ -36,7 +36,7 @@
 ##   this file includes permission enums like permAddReactions, permViewAuditLogs,
 ##   permCreateInstantInvite, etc. Intents are also included there.
 ## 
-## - `voice` Allows you to connect to the voice gateway,
+## - `voice` [CURRENTLY UNSUPPORTED IN NOSSL MODE] Allows you to connect to the voice gateway,
 ##    play audio in voice channel, etc. [Look at examples/voice.nim for reference](https://github.com/krisppurg/dimscord/blob/master/examples/voice.nim)
 ##
 ##   For joining/leaving a voice channel, see `gateway`.
@@ -72,12 +72,16 @@
 ## - `-d:dimscordVoice` Enables the voice module. Requires libsodium and libopus
 ## - `-d:discordEtf` Enables etf support for gateway, currently not the fastest as dimscord relies on json.
 ## - `-d:jsonyDumps` If there are any [jsony](https://github.com/treeform/jsony) parsing issues going on during serialisation processes, you can view the raw json data for debugging purposes.
+## - `-d:windowsNativeTls` (Windows only) Use WinHTTP/SChannel for REST/gateway to avoid OpenSSL DLLs.
 
-{.define: ssl.}
+when defined(windowsNativeTls) and defined(windows):
+    {.undef: ssl.} # Force-disable OpenSSL when using WinHTTP/SChannel.
+else:
+    {.define: ssl.}
 
 assert (NimMajor, NimMinor, NimPatch) >= (2, 0, 6), "We currently support only Nim v2.0.6 or above. Please update your version of Nim."
 
-import dimscord/[
+import src/[
     gateway, restapi, constants,
     objects, helpers
 ]
@@ -85,5 +89,5 @@ import dimscord/[
 export gateway, restapi, constants, objects, helpers
 
 when defined(dimscordVoice):
-    import dimscord/voice
+    import dimscord_nossl/voice
     export voice

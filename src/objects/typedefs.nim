@@ -1,7 +1,11 @@
 import options as optns, json, asyncdispatch
 import tables, ../constants
-from ws import Websocket
 import std/asyncnet
+when defined(windowsNativeTls) and defined(windows):
+    import ../winws as nativews
+    type Websocket = nativews.Websocket
+else:
+    from ws import Websocket
 
 type
     RestError* = object of CatchableError
