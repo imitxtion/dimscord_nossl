@@ -1,5 +1,5 @@
 # Dimscord With Windows Native TLS Option
-Modification of [dimscord](https://github.com/krisppurg/dimscord) (Discord bot & REST library for Nim made by [krisppurg](https://github.com/krisppurg), with an **option** to disable OpenSSL requirement and use Windows native WinHTTP/SChannel transport instead. 
+Modification of [dimscord](https://github.com/krisppurg/dimscord) (Discord bot & REST library for Nim made by [krisppurg](https://github.com/krisppurg)) with an **option** to disable OpenSSL requirement and use Windows native WinHTTP/SChannel transport instead. 
 
 ## Why using WinHTTP/SChannel instead of OpenSSL?
 
